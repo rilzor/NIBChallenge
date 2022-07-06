@@ -63,19 +63,25 @@ public class jsonProcess {
             if(!checkStockLevels(orderItems)){
                 //should find a way to order this
                 rejectedOrders[i] = orderToProcess.getOrderID();
+                setOrderStatus(orderToProcess.getOrderID(),"Unfulfillable");
                 continue;
             };
             //now loop over each item
             for (x = 0;x < orderItems.length;x++){
                 OrderItems orderItem = orderItems[x];
                 removeStockOnHand(orderItem.getProductId(), orderItem.getQuantity());
-                orderToProcess.setStatus("Fulfilled");
+                setOrderStatus(orderToProcess.getOrderID(), "Fulfilled");
             }
             System.out.println(orderToProcess.getItems());
         }
         System.out.println("custom built order array");
 
         return rejectedOrders;
+    }
+
+    public static void setOrderStatus(int orderId, String status){
+        Order updateOrder = getOrderByOrderId(orderId);
+        updateOrder.setStatus(status);
     }
 
     public static void removeStockOnHand(int productId, int quantity){
