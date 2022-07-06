@@ -13,7 +13,6 @@ public class jsonProcess {
     public static void main(String[] args) throws IOException {
         //read in the json file
         JsonStructure jsonData = jsonReader.readJsonFile();
-        System.out.println("Hello World");
 
         System.out.println(jsonData.Orders.length);
         System.out.println(jsonData.Products.length);
@@ -24,7 +23,9 @@ public class jsonProcess {
 
 
         int[] orderIds = getOrderIds(jsonData.Orders);
-        processOrders(orderIds);
+        int[] rejectedOrders = processOrders(orderIds);
+        System.out.println(globalProducts);
+
         //read JSON file
         //return order ids
         // check stock
@@ -62,6 +63,7 @@ public class jsonProcess {
             //make sure there is enough stock to order these items
             if(!checkStockLevels(orderItems)){
                 //should find a way to order this
+
                 rejectedOrders[i] = orderToProcess.getOrderID();
                 setOrderStatus(orderToProcess.getOrderID(),"Unfulfillable");
                 continue;
@@ -75,13 +77,8 @@ public class jsonProcess {
             System.out.println(orderToProcess.getItems());
         }
         System.out.println("custom built order array");
-
+        rejectedOrders = Arrays.stream(rejectedOrders).filter(reject -> reject>0).toArray();
         return rejectedOrders;
-    }
-
-    public static void setOrderStatus(int orderId, String status){
-        Order updateOrder = getOrderByOrderId(orderId);
-        updateOrder.setStatus(status);
     }
 
     public static void removeStockOnHand(int productId, int quantity){
@@ -135,6 +132,11 @@ public class jsonProcess {
             }
         }
         return foundOrder;
+    }
+
+    public static void setOrderStatus(int orderId, String status){
+        Order updateOrder = getOrderByOrderId(orderId);
+        updateOrder.setStatus(status);
     }
 
     public static void newPurchaseOrder(int productId, int orderQuantity){
