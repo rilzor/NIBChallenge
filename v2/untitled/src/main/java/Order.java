@@ -11,7 +11,7 @@ public class Order {
     @JsonProperty("dateCreated")
     String dateCreated;
     @JsonProperty("items")
-    Object[] items;
+    OrderItems[] items;
 
     public int getOrderID() {
         return orderID;
@@ -21,7 +21,7 @@ public class Order {
         return dateCreated;
     }
 
-    public Object[] getItems() {
+    public OrderItems[] getItems() {
         return items;
     }
 
