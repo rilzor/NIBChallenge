@@ -1,8 +1,8 @@
 import java.io.IOException;
 import java.util.Arrays;
 
-public class jsonProcess {
-    //Ideally these would be read into a database so I have structured functions with that in mind, but for sample purposes I have just created them as global objects in this function.
+public class mainProcess {
+    //Ideally these would be read into a database, I have structured functions with that in mind, but for sample purposes I have just created them as global objects in this function.
     public static Product[] globalProduct = new Product[]{};
     public static Order[] globalOrder = new Order[]{};
     public static void main(String[] args) throws IOException {
