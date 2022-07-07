@@ -1,10 +1,11 @@
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OrderItems {
+public class OrderItem {
     @JsonProperty("orderId")
     int orderId;
     @JsonProperty("productId")
     int productId;
+
     @JsonProperty("quantity")
     int quantity;
     @JsonProperty("costPerItem")

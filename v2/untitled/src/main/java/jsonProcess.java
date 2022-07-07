@@ -1,44 +1,29 @@
-
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.stream.Stream;
-
 
 public class jsonProcess {
-    public static Products[] globalProducts = new Products[]{};
+    public static Product[] globalProduct = new Product[]{};
     public static Order[] globalOrder = new Order[]{};
     public static void main(String[] args) throws IOException {
         //read in the json file
         JsonStructure jsonData = jsonReader.readJsonFile();
 
-        System.out.println(jsonData.Orders.length);
-        System.out.println(jsonData.Products.length);
         //set the global products & orders data
-        globalProducts = jsonData.Products;
+        globalProduct = jsonData.Products;
         globalOrder = jsonData.Orders;
-        System.out.println(globalProducts);
 
-
+        //get the order ids and then pass them into the process order function
         int[] orderIds = getOrderIds(jsonData.Orders);
         int[] rejectedOrders = processOrders(orderIds);
-        System.out.println(globalProducts);
-
-        //read JSON file
-        //return order ids
-        // check stock
-        //reorder
     }
 
+    //extracts an array of order ids from an array of Order objects
     public static int[] getOrderIds(Order[] Orders){
         int[] orderIds = new int[Orders.length];
-        System.out.println(Orders);
         int i;
         for (i = 0;i < Orders.length;i++){
             Order order = Orders[i];
-            int orderId = order.getOrderID();
+            int orderId = order.getOrderId();
             orderIds[i] = orderId;
         }
         return orderIds;
@@ -52,39 +37,45 @@ public class jsonProcess {
         for (i = 0;i < orderIds.length;i++){
             int orderId = orderIds[i];
             Order newOrder = getOrderByOrderId(orderId);
-            //check if new order is valid?
+            Order testOrder = new Order();
+            //assume order id cannot be 0 or would rework to be empty object if nothing found
+            //catch for order id not found, it would be rejected
+            if (newOrder.getOrderId() == 0){
+                rejectedOrders[i] = orderId;
+                continue;
+            }
             orderArray [i] = newOrder;
         }
 
         //now we have the order array we loop over each order
         for (i = 0;i < orderArray.length;i++){
             Order orderToProcess = orderArray[i];
-            OrderItems[] orderItems = orderToProcess.getItems();
+            OrderItem[] orderItems = orderToProcess.getItems();
             //make sure there is enough stock to order these items
+            //needs to check all together so nothing gets partially processed and needs to be undone in stock on hand
             if(!checkStockLevels(orderItems)){
                 //should find a way to order this
-
-                rejectedOrders[i] = orderToProcess.getOrderID();
-                setOrderStatus(orderToProcess.getOrderID(),"Unfulfillable");
+                rejectedOrders[i] = orderToProcess.getOrderId();
+                setOrderStatus(orderToProcess.getOrderId(),"Unfulfillable");
                 continue;
-            };
+            }
             //now loop over each item
             for (x = 0;x < orderItems.length;x++){
-                OrderItems orderItem = orderItems[x];
+                OrderItem orderItem = orderItems[x];
                 removeStockOnHand(orderItem.getProductId(), orderItem.getQuantity());
-                setOrderStatus(orderToProcess.getOrderID(), "Fulfilled");
+                setOrderStatus(orderToProcess.getOrderId(), "Fulfilled");
             }
-            System.out.println(orderToProcess.getItems());
         }
-        System.out.println("custom built order array");
+        //format array to have no blank entries
         rejectedOrders = Arrays.stream(rejectedOrders).filter(reject -> reject>0).toArray();
         return rejectedOrders;
     }
 
-    public static void removeStockOnHand(int productId, int quantity){
-        Products productToUpdate = getProductByProductId(productId);
+    //subtract stock for order from stock on hand
+    public static void removeStockOnHand(int productId, int orderQuantity){
+        Product productToUpdate = getProductByProductId(productId);
         int curQuantity = productToUpdate.getQuantityOnHand();
-        int newQuantity = curQuantity - quantity;
+        int newQuantity = curQuantity - orderQuantity;
         productToUpdate.setQuantityOnHand(newQuantity);
         if (productToUpdate.getReorderThreshold() > newQuantity){
             newPurchaseOrder(productToUpdate.getProductId(), productToUpdate.getReorderAmount());
@@ -93,12 +84,12 @@ public class jsonProcess {
 
     //takes an array of orderItems and checks to make sure stock levels will be enough
     //Assumption #1 there is only 1 copy of each product in an order
-    public static boolean checkStockLevels(OrderItems[] orderItems){
+    public static boolean checkStockLevels(OrderItem[] orderItems){
         boolean validStockLevels = true;
         int i;
         for (i = 0;i < orderItems.length;i++){
-            OrderItems curItem = orderItems[i];
-            Products curItemProduct = getProductByProductId(curItem.getProductId());
+            OrderItem curItem = orderItems[i];
+            Product curItemProduct = getProductByProductId(curItem.getProductId());
             if (curItem.getQuantity() > curItemProduct.getQuantityOnHand() ){
                 validStockLevels = false;
             }
@@ -106,12 +97,13 @@ public class jsonProcess {
         return validStockLevels;
     }
 
-    public static Products getProductByProductId(int productId){
+    //product/order retrieval functions
+    public static Product getProductByProductId(int productId){
         //should check for product not found/empty
         int i;
-        Products foundProduct = new Products();
-        for (i=0;i<globalProducts.length;i++){
-            Products searchProduct = globalProducts[i];
+        Product foundProduct = new Product();
+        for (i=0;i<globalProduct.length;i++){
+            Product searchProduct = globalProduct[i];
             if (searchProduct.getProductId() == productId){
                 foundProduct = searchProduct;
                 break;
@@ -126,7 +118,7 @@ public class jsonProcess {
         Order foundOrder = new Order();
         for (i=0;i<globalOrder.length;i++){
             Order searchOrder = globalOrder[i];
-            if (searchOrder.getOrderID() == orderId){
+            if (searchOrder.getOrderId() == orderId){
                 foundOrder = searchOrder;
                 break;
             }
@@ -134,12 +126,19 @@ public class jsonProcess {
         return foundOrder;
     }
 
+    //update order status
     public static void setOrderStatus(int orderId, String status){
         Order updateOrder = getOrderByOrderId(orderId);
         updateOrder.setStatus(status);
     }
 
+    //generate purchase order for new stock
     public static void newPurchaseOrder(int productId, int orderQuantity){
+        System.out.print("Generating Purchase Order for Product ID ");
+        System.out.print(productId);
+        System.out.print(" for quantity of ");
+        System.out.print(orderQuantity);
+
         //empty example function
     }
 

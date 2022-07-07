@@ -5,23 +5,23 @@ import java.time.LocalDateTime;
 
 public class Order {
     @JsonProperty("orderId")
-    int orderID;
+    int orderId;
     @JsonProperty("status")
     String status;
     @JsonProperty("dateCreated")
     String dateCreated;
     @JsonProperty("items")
-    OrderItems[] items;
+    OrderItem[] items;
 
-    public int getOrderID() {
-        return orderID;
+    public int getOrderId() {
+        return orderId;
     }
 
-    public String getDateCreated() {
-        return dateCreated;
+    public LocalDateTime getDateCreated() {
+        return LocalDateTime.parse(dateCreated);
     }
 
-    public OrderItems[] getItems() {
+    public OrderItem[] getItems() {
         return items;
     }
 

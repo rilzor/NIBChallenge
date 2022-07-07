@@ -5,5 +5,5 @@ public class JsonStructure
     @JsonProperty("orders")
     Order[] Orders;
     @JsonProperty("products")
-    Products[] Products;
+    Product[] Products;
 }

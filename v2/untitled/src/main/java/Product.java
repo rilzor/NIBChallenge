@@ -1,6 +1,6 @@
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Products {
+public class Product {
     @JsonProperty("productId")
     int productId;
     @JsonProperty("description")
