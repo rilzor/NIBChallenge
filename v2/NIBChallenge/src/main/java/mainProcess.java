@@ -117,8 +117,10 @@ public class mainProcess {
     }
 
     //product/order retrieval functions
+
+    //takes a Product id and tries to find the Product details or returns an empty Product object
+    //empty products will be rejected because stock on hand will be 0
     public static Product getProductByProductId(int productId){
-        //should check for product not found/empty
         int i;
         Product foundProduct = new Product();
         for (i=0;i<globalProduct.length;i++){
@@ -131,8 +133,8 @@ public class mainProcess {
         return foundProduct;
     }
 
+    //takes an order id and tries to find the order details or returns an empty order object
     public static Order getOrderByOrderId(int orderId){
-        //should check for order not found/empty
         int i;
         Order foundOrder = new Order();
         for (i=0;i<globalOrder.length;i++){
